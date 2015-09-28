@@ -1,0 +1,160 @@
+<div class="page-header">
+  <h2>.</h2>
+  <h2>Team: <%= team_name %></h2>
+</div>
+<div id="messages">
+</div>
+
+<div class="page-header">
+  <h2>Benchmark Queue</h2>
+</div>
+<div id="queue">
+</div>
+
+<div style="padding-top: 4em;"></div>
+
+<div id="command" class="panel panel-default">
+  <div class="panel-heading"><h5>Request benchmark</h5></div>
+  <div class="panel-body">
+    <form class="form-inline">
+      <div class="form-group">
+        <label class="sr-only" for="inputIPAddress">IP Address</label>
+        <div class="input-group">
+          <div class="input-group-addon">IP</div>
+          <input type="text" class="form-control" id="inputIPAddress" size="30" placeholder="インスタンス登録があれば不要" />
+        </div>
+      </div>
+      <button id="enqueue-request" type="submit" class="btn btn-primary">Enqueue</button>
+      <div class="form-group" id="instance-status-check">
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="page-header">
+  <h2>Score History</h2>
+</div>
+<div id="history">
+  <table id="history-table" class="table">
+    <tr id="history-header"><th>timestamp</th><th style="text-align:right;">score</th><th></th></tr>
+  </table>
+</div>
+
+<div class="page-header">
+  <h2>Latest Top 20</h2>
+</div>
+<div id="leader-board">
+  <table id="leader-board-table" class="table">
+    <tr id="leader-header">
+      <th>team</th>
+      <th style="text-align:center;"></th>
+      <th style="text-align:right;">latest score</th>
+      <th style="text-align:right;">best score</th>
+    </tr>
+  </table>
+</div>
+
+<div class="modal fade" id="enqueue-request-result">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">ベンチマークリクエスト</h4>
+      </div>
+      <div class="modal-body">
+        <p id="result-message"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="bench-detail">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">スコア詳細</h4>
+      </div>
+      <div class="modal-body">
+        <p id="score-message">スコア詳細取得に失敗しました(ID:33302, TEAM:127)</p>
+        <table class="table" id="table-bench-detail">
+          <tr>
+            <th style="text-align:right;">リクエスト数</th><td id="bench-requests" style="text-align:center;">5</td>
+            <th style="text-align:right;">経過秒数</th><td id="bench-elapsed" style="text-align:center;">0.413</td>
+            <th style="text-align:right;">実行内容</th><td id="bench-done" style="text-align:left;" colspan="3">BootstrapChecker</td>
+          </tr>
+          <tr>
+            <th style="text-align:right;">2xx</th><td id="bench-success" style="text-align:center;">2</td>
+            <th style="text-align:right;">3xx</th><td id="bench-redirect" style="text-align:center;">2</td>
+            <th style="text-align:right;">4xx</th><td id="bench-failure" style="text-align:center;">0</td>
+            <th style="text-align:right;">5xx/timeout</th><td id="bench-error" style="text-align:center;">0/2</td>
+          </tr>
+          <tr class="violation">
+            <td class="violation-type" colspan="2">HttpResponseException</td>
+            <td style="text-align:right;">num:</td><td class="violation-num">2</td>
+            <td class="violation-message" colspan="4">HTTP protocol violation: Authentication challenge without WWW-Authenticate header</td>
+          </tr>
+          <tr class="violation">
+            <td class="violation-type" colspan="2">SHOULD LOGIN AT FIRST</td>
+            <td style="text-align:right;">num:</td><td class="violation-num">1</td>
+            <td class="violation-message" colspan="4">未ログインでトップページへのアクセスが正しいリダイレクトになっていません</td>
+          </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="item_box" style="display: none;">
+  <!-- into div#messages -->
+  <div class="message alert" role="alert"></div> <!-- add priority to class: alert-info, alert-warning, alert-danger -->
+
+  <!-- into div#queue -->
+  <span class="label queue-entry"></span> <!-- label-warning(running), label-info(waiting), label-danger(running,myteam), label-primary(running,myteam) -->
+
+  <!-- into div#history table#history-table -->
+  <table id="item-box-bench">
+    <tr class="bench-history bench-failed active">
+      <td class="timestamp"></td>
+      <td class="score" style="text-align:right;"></td>
+      <td style="text-align:right;">FAIL: <button type="button" class="show-bench-detail btn btn-default btn-xs"><span class="glyphicon glyphicon-search"></span></button></td>
+    </tr>
+    <tr class="bench-history bench-successed">
+      <td class="timestamp"></td>
+      <td class="score" style="text-align:right;"></td>
+      <td style="text-align:right;"><button type="button" class="show-bench-detail btn btn-default btn-xs"><span class="glyphicon glyphicon-search"></span></button></td>
+    </tr>
+  </table>
+
+  <!-- into div#leader-board table#leader-board-table -->
+  <table id="item-box-bench-leader">
+    <tr class="bench-leader">
+      <td class="bench-team"></td>
+      <td class="bench-latest-at" style="text-align:center;"></td>
+      <td class="bench-latest" style="text-align:right;"></td>
+      <td class="bench-best" style="text-align:right;"></td>
+    </tr>
+  </table>
+
+  <!-- into table#table-bench-detail -->
+  <table id="item-box-violation">
+    <tr class="violation">
+      <td class="violation-type" colspan="2"></td>
+      <td style="text-align:right;">num:</td><td class="violation-num"></td>
+      <td class="violation-message" colspan="4"></td>
+    </tr>
+  </table>
+
+  <!-- into div#instance-status-check -->
+  <div id="item-box-instance-check">
+    <div class="container check-success"><span class="instance-check-success label label-info"></span><br /></div>
+    <div class="container check-fail"><span class="instance-check-fail label label-danger"></span><br /></div>
+  </div>
+  
+</div>

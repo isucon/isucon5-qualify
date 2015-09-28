@@ -1,0 +1,37 @@
+<div class="page-header">
+  <h2>.</h2>
+</div>
+
+<div class="container theme-showcase" role="main">
+  <h1>チーム情報の更新</h1>
+
+  <div id="update-team-box">
+    <form method="POST" action="/team">
+      <div class="form-group">
+        <label for="teamName">チーム名(変更不可)</label>
+        <input type="text" class="form-control" id="inputTeamName" name="team" value="<%= team %>" size="30" readonly />
+      </div>
+      <div class="form-group">
+        <label for="emailAddress">メールアドレス(ログイン用: 変更不可)</label>
+        <input type="text" class="form-control" id="inputEmail" name="email" value="<%= email %>" size="30" readonly />
+      </div>
+      <div class="form-group">
+        <label for="inputRound">参加日</label>
+        <input type="text" class="form-control" id="inputRound" name="round" value="<%= case round when 1 then '土曜日' when 2 then '日曜日' else '運営' end %>" size="30" readonly />
+      </div>
+      <div class="form-group">
+        <label for="inputProjectId">GCP プロジェクトID (注: 「プロジェクト名」ではなくその下の「プロジェクトID」です)</label>
+        <input type="text" class="form-control" id="inputProje" name="project_id" value="<%= project_id %>" size="30" />
+      </div>
+      <div class="form-group">
+        <label for="inputZoneName">GCE 使用ゾーン名</label>
+        <input type="text" class="form-control" id="inputZoneName" name="zone_name" value="<%= zone_name %>" placeholder="ex: asia-east1-a" size="30" />
+      </div>
+      <div class="form-group">
+        <label for="inputInstanceName">GCE 使用インスタンス名</label>
+        <input type="text" class="form-control" id="inputInstanceName" name="instance_name" value="<%= instance_name %>" placeholder="ex: instance-1" size="30" />
+      </div>
+      <button type="submit" class="btn btn-default">更新</button>
+    </form>
+  </div>
+</div>

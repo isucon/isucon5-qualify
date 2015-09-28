@@ -1,0 +1,28 @@
+: cascade base
+: around content -> {
+
+<p id="author">
+: if $memo.is_private {
+Private
+: } else {
+Public
+: }
+Memo by <: $memo.username :> (<: $memo.created_at :>)
+</p>
+
+<hr>
+: if $older {
+<a id="older" href="<: $c.req.uri_for('/memo/') :><: $older.id :>">&lt; older memo</a>
+: }
+|
+: if $newer {
+<a id="newer" href="<: $c.req.uri_for('/memo/') :><: $newer.id :>">newer memo &gt;</a>
+: }
+
+<hr>
+<div id="content_html">
+<: $memo.content_html | raw :>
+</div>
+
+: }
+

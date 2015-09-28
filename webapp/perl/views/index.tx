@@ -1,0 +1,92 @@
+: cascade base
+: around content -> {
+
+<h2>ISUxi index</h2>
+<div class="row panel panel-primary" id="prof">
+  <div class="col-md-12 panel-title" id="prof-nickname"><: ($user['nick_name']) :></div>
+  <div class="col-md-12"><a href="/profile/<: ($user['account_name']) :>">プロフィール</a></div>
+  <div class="col-md-4">
+    <dl>
+      <dt>アカウント名</dt><dd id="prof-account-name"><: ($user['account_name']) :></dd>
+      <dt>メールアドレス</dt><dd id="prof-email"><: ($user['email']) :></dd>
+      <dt>姓</dt><dd id="prof-last-name"><: ($profile['last_name']) || '未入力' :></dd>
+      <dt>名</dt><dd id="prof-first-name"><: ($profile['first_name']) || '未入力' :></dd>
+      <dt>性別</dt><dd id="prof-sex"><: ($profile['sex']) || '未入力' :></dd>
+      <dt>誕生日</dt><dd id="prof-birthday"><: ($profile['birthday']) || '未入力' :></dd>
+      <dt>住んでいる県</dt><dd id="prof-pref"><: ($profile['pref']) || '未入力' :></dd>
+      <dt>友だちの人数</dt><dd id="prof-friends"><a href="/friends"><: $friends.size() :>人</a></dd>
+    </dl>
+  </div>
+  <div class="col-md-4">
+    <div id="entries-title"><a href="/diary/entries/<: ($user['account_name']) :>">あなたの日記エントリ</a></div>
+    <div id="entries">
+      <ul class="list-group">
+        : for $entries -> $entry {
+        <li class="list-group-item entries-entry"><a href="/diary/entry/<: ($entry['id']) :>"><: $entry.title :></a></li>
+        : }
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div><a href="/footprints">あなたのページへの足あと</a></div>
+    <div id="footprints">
+      <ul class="list-group">
+        : for $footprints -> $fp {
+        <li class="list-group-item footprints-footprint"><: ($fp['updated']) :>: <a href="/profile/<: ($fp['account_name']) :>"><: ($fp['nick_name']) :>さん</a>
+        : }
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="row panel panel-primary">
+<div class="col-md-4">
+  <div>あなたへのコメント</div>
+  <div id="comments">
+    : for $comments_for_me -> $comment {
+    <div class="comments-comment">
+      <ul class="list-group">
+        <li class="list-group-item comment-owner"><a href="/profile/<: ($comment['account_name']) :>"><: ($comment['nick_name']) :>さん</a>:
+        <li class="list-group-item comment-comment"><: $comment['comment'].length() > 30 ? $comment['comment'].substr(0, 27) ~ '...' : $comment['comment'] :>
+        <li class="list-group-item comment-created-at">投稿時刻:<: ($comment['created_at']) :>
+      </ul>
+    </div>
+    : }
+  </div>
+</div>
+
+<div class="col-md-4">
+  <div>あなたの友だちの日記エントリ</div>
+  <div id="friend-entries">
+    : for $entries_of_friends -> $entry {
+    <div class="friend-entry">
+      <ul class="list-group">
+        <li class="list-group-item entry-owner"><a href="/diary/entries/<: ($entry['account_name']) :>"><: ($entry['nick_name']) :>さん</a>:
+        <li class="list-group-item entry-title"><a href="/diary/entry/<: ($entry['id']) :>"><: $entry['title'] :></a>
+        <li class="list-group-item entry-created-at">投稿時刻:<: ($entry['created_at']) :>
+      </ul>
+    </div>
+    <: } :>
+  </div>
+</div>
+
+<div class="col-md-4">
+  <div>あなたの友だちのコメント</div>
+  <div id="friend-comments">
+    : for $comments_of_friends -> $comment {
+    <div class="friend-comment">
+      <ul class="list-group">
+        <li class="list-group-item comment-from-to">
+          <a href="/profile/<: ($comment['account_name']) :>"><: ($comment['nick_name']) :>さん</a>から
+          <a href="/profile/<: $comment.entry.account_name :>"><: $comment.entry.nick_name :>さん</a>へのコメント:
+        <li class="list-group-item comment-comment"><: $comment['comment'].length() > 30 ? $comment.comment.substr(0, 27) ~ '...' : $comment['comment'] :>
+        <li class="list-group-item comment-created-at">投稿時刻:<: ($comment['created_at']) :>
+      </ul>
+    </div>
+    : }
+  </div>
+</div>
+</div>
+
+: } # end content

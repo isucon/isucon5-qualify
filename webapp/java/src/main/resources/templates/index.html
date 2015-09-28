@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<body>
+<div layout:fragment="content">
+    <h2>ISUxi index</h2>
+
+    <div class="row panel panel-primary" id="prof">
+        <div class="col-md-12 panel-title" id="prof-nickname" th:text="${user.nickName}"></div>
+        <div class="col-md-12"><a th:href="@{'/profile/' + ${user.accountName}}">プロフィール</a></div>
+        <div class="col-md-4">
+            <dl>
+                <dt>アカウント名</dt>
+                <dd id="prof-account-name" th:text="${user.accountName}"></dd>
+                <dt>メールアドレス</dt>
+                <dd id="prof-email" th:text="${user.email}"></dd>
+                <dt>姓</dt>
+                <dd id="prof-last-name" th:text="${profile.lastName != null ? profile.lastName : '未入力'}"></dd>
+                <dt>名</dt>
+                <dd id="prof-first-name" th:text="${profile.firstName != null ? profile.firstName : '未入力'}"></dd>
+                <dt>性別</dt>
+                <dd id="prof-sex" th:text="${profile.sex != null ? profile.sex : '未入力'}"></dd>
+                <dt>誕生日</dt>
+                <dd id="prof-birthday" th:text="${profile.birthDay != null ? profile.birthDay : '未入力'}"></dd>
+                <dt>住んでいる県</dt>
+                <dd id="prof-pref" th:text="${profile.pref != null ? profile.pref : '未入力'}"></dd>
+                <dt>友だちの人数</dt>
+                <dd id="prof-friends"><a th:href="@{/friends}" th:text="${friends.size() + '人'}"></a></dd>
+            </dl>
+        </div>
+        <div class="col-md-4">
+            <div id="entries-title"><a th:href="@{'/diary/entries/' + ${user.accountName}}">あなたの日記エントリ</a></div>
+            <div id="entries">
+                <ul class="list-group">
+                    <li class="list-group-item entries-entry" th:each="entry : ${entries}"><a
+                            th:href="@{'/diary/entry/' + ${entry.id}}"
+                            th:text="${entry.title}"></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div><a th:href="@{/footprints}">あなたのページへの足あと</a></div>
+            <div id="footprints">
+                <ul class="list-group">
+                    <li class="list-group-item footprints-footprint" th:each="fp : ${footprints}"
+                        th:with="owner=${@userRepository.findOne(fp.ownerId)}">
+                        <span th:text="${fp.updated}"></span>: <a th:href="@{'/profile/' + ${owner.accountName}}"
+                                                                  th:text="${owner.nickName + 'さん'}"></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row panel panel-primary">
+        <div class="col-md-4">
+            <div>あなたへのコメント</div>
+            <div id="comments">
+                <div class="comments-comment" th:each="comment : ${comments_for_me}"
+                     th:with="commentUser=${@userRepository.findOne(comment.userId)}">
+                    <ul class="list-group">
+                        <li class="list-group-item comment-owner"><a
+                                th:href="@{'/profile/' + ${commentUser.accountName}}"
+                                th:text="${commentUser.nickName + 'さん'}"></a>:
+                        </li>
+                        <li class="list-group-item comment-comment"
+                            th:text="${comment.comment.length() > 30 ? comment.comment.substring(0, 27) + '...' : comment.comment}"></li>
+                        <li class="list-group-item comment-created-at" th:text="${'投稿時刻:' + #temporals.format(comment.createdAt, 'uuuu-MM-dd HH:mm:ss')}"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div>あなたの友だちの日記エントリ</div>
+            <div id="friend-entries">
+                <div class="friend-entry" th:each=" entry : ${entries_of_friends}"
+                     th:with="entryOwner=${@userRepository.findOne(entry.userId)}">
+                    <ul class="list-group">
+                        <li class="list-group-item entry-owner"><a
+                                th:href="@{'/diary/entries/' + ${entryOwner.accountName}}"
+                                th:text="${entryOwner.nickName + 'さん'}"></a>:
+                        </li>
+                        <li class="list-group-item entry-title"><a th:href="@{'/diary/entry/' + ${entry.id}}"
+                                                                   th:text="${entry.title}"></a></li>
+                        <li class="list-group-item entry-created-at" th:text="${'投稿時刻:' + #temporals.format(entry.createdAt, 'uuuu-MM-dd HH:mm:ss')}"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div>あなたの友だちのコメント</div>
+            <div id="friend-comments">
+                <div class="friend-comment" th:each="comment : ${comments_of_friends}">
+                    <ul class="list-group" th:with="commentOwner=${@userRepository.findOne(comment.userId)},
+                                                    entry=${@entryRepository.findOne(comment.entryId)},
+                                                    entryOwner=${@userRepository.findOne(entry.userId)}">
+                        <li class="list-group-item comment-from-to"><a
+                                th:href="@{'/profile/' + ${commentOwner.accountName}}"
+                                th:text="${commentOwner.nickName + 'さん'}"></a>から<a
+                                th:href="@{'/profile/' + ${entryOwner.accountName}}"
+                                th:text="${entryOwner.nickName + 'さん'}"></a>へのコメント:
+                        </li>
+                        <li class="list-group-item comment-comment"
+                            th:text="${comment.comment.length() > 30 ? comment.comment.substring(0, 27) + '...' : comment.comment}"></li>
+                        <li class="list-group-item comment-created-at" th:text="${'投稿時刻:' + #temporals.format(comment.createdAt, 'uuuu-MM-dd HH:mm:ss')}"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

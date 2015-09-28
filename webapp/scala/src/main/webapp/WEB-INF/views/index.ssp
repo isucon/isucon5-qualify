@@ -1,0 +1,101 @@
+<%@ val user: isucon5.DB.User %>
+<%@ val profile: isucon5.DB.Profile %>
+<%@ val friends: Seq[isucon5.DB.Friend] %>
+<%@ val entries: Seq[isucon5.DB.Entry] %>
+<%@ val comments_for_me: Seq[isucon5.DB.Comment] %>
+<%@ val entries_of_friends: Seq[isucon5.DB.Entry] %>
+<%@ val comments_of_friends: Seq[isucon5.DB.Comment] %>
+<%@ val footprints: Seq[isucon5.DB.Footprint] %>
+<h2>ISUxi index</h2>
+<div class="row panel panel-primary" id="prof">
+<div class="col-md-12 panel-title" id="prof-nickname"><%= user.nick_name %></div>
+<div class="col-md-12"><a href="/profile/<%= user.account_name %>">プロフィール</a></div>
+<div class="col-md-4">
+    <dl>
+        <dt>アカウント名</dt><dd id="prof-account-name"><%= user.account_name %></dd>
+        <dt>メールアドレス</dt><dd id="prof-email"><%= user.email %></dd>
+        <dt>姓</dt><dd id="prof-last-name"><%= profile.last_name.getOrElse("未入力") %></dd>
+        <dt>名</dt><dd id="prof-first-name"><%= profile.first_name.getOrElse("未入力") %></dd>
+        <dt>性別</dt><dd id="prof-sex"><%= profile.sex.getOrElse("未入力") %></dd>
+        <dt>誕生日</dt><dd id="prof-birthday"><%= profile.birthday.getOrElse("未入力") %></dd>
+        <dt>住んでいる県</dt><dd id="prof-pref"><%= profile.pref.getOrElse("未入力") %></dd>
+        <dt>友だちの人数</dt><dd id="prof-friends"><a href="/friends"><%= friends.size %>人</a></dd>
+    </dl>
+</div>
+<div class="col-md-4">
+    <div id="entries-title"><a href="/diary/entries/<%= user.account_name %>">あなたの日記エントリ</a></div>
+    <div id="entries">
+        <ul class="list-group">
+            #for(entry <- entries)
+                <li class="list-group-item entries-entry"><a href="/diary/entry/<%= entry.id %>"><%= entry.headline %></a></li>
+            #end
+        </ul>
+    </div>
+</div>
+
+<div class="col-md-4">
+    <div><a href="/footprints">あなたのページへの足あと</a></div>
+    <div id="footprints">
+        <ul class="list-group">
+            #for(fp <- footprints)
+                #{ val owner = isucon5.DB.User(fp.owner_id) }#
+                <li class="list-group-item footprints-footprint"><%= fp.updatedTime %>: <a href="/profile/<%= owner.account_name %>"><%= owner.nick_name %>さん</a>
+            #end
+        </ul>
+    </div>
+</div>
+</div>
+
+<div class="row panel panel-primary">
+<div class="col-md-4">
+    <div>あなたへのコメント</div>
+    <div id="comments">
+        #for(comment <- comments_for_me)
+            <div class="comments-comment">
+            <ul class="list-group">
+            #{ val comment_user : isucon5.DB.User = isucon5.DB.User(comment.user_id) }#
+            <li class="list-group-item comment-owner"><a href="/profile/<%= comment_user.account_name %>"><%= comment_user.nick_name %>さん</a>:
+            <li class="list-group-item comment-comment">${if(comment.comment.size > 30) comment.comment.substring(0, 27) + "..." else comment.comment }
+            <li class="list-group-item comment-created-at">投稿時刻:<%= comment.createdTime %>
+            </ul>
+            </div>
+        #end
+    </div>
+</div>
+
+<div class="col-md-4">
+    <div>あなたの友だちの日記エントリ</div>
+    <div id="friend-entries">
+        #for(entry <- entries_of_friends)
+            <div class="friend-entry">
+            <ul class="list-group">
+            #{ val entry_owner = isucon5.DB.User(entry.user_id) }#
+            <li class="list-group-item entry-owner"><a href="/diary/entries/<%= entry_owner.account_name %>"><%= entry_owner.nick_name %>さん</a>:
+            <li class="list-group-item entry-title"><a href="/diary/entry/<%= entry.id %>"><%= entry.headline %></a>
+            <li class="list-group-item entry-created-at">投稿時刻:<%= entry.createdTime %>
+            </ul>
+            </div>
+        #end
+    </div>
+</div>
+
+<div class="col-md-4">
+    <div>あなたの友だちのコメント</div>
+    <div id="friend-comments">
+        #for(comment <- comments_of_friends)
+            <div class="friend-comment">
+            <ul class="list-group">
+            #{ val comment_owner = isucon5.DB.User(comment.user_id) }#
+            #{ val entry = isucon5.DB.Entry(comment.entry_id) }#
+            #{ val entry_owner = isucon5.DB.User(entry.user_id) }#
+            <li class="list-group-item comment-from-to">
+              <a href="/profile/<%= comment_owner.account_name %>"><%= comment_owner.nick_name %>さん</a>から
+              <a href="/profile/<%= entry_owner.account_name %>"><%= entry_owner.nick_name %>さん</a>へのコメント:
+            <li class="list-group-item comment-comment">${if(comment.comment.size > 30) comment.comment.substring(0, 27) + "..." else comment.comment}
+            <li class="list-group-item comment-created-at">投稿時刻:<%= comment.createdTime %>
+            </ul>
+            </div>
+        #end
+    </div>
+</div>
+</div>

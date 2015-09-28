@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ -f /etc/bashrc ]; then
+  . /etc/bashrc
+fi
+
+export PATH=/usr/local/bin:$PATH
+export PATH=/home/isucon/.local/ruby/bin:$PATH
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64

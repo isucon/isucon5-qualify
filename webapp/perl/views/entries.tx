@@ -1,0 +1,46 @@
+: cascade base
+: around content -> {
+
+<h2><: ($owner['nick_name']) :>さんの日記</h2>
+: if ($myself) {
+<div class="row" id="entry-post-form">
+  <form method="POST" action="/diary/entry">
+    <div class="col-md-4 input-group">
+      <span class="input-group-addon">タイトル</span>
+      <input type="text" name="title" />
+    </div>
+    <div class="col-md-4 input-group">
+      <span class="input-group-addon">本文</span>
+      <textarea name="content" ></textarea>
+    </div>
+    <div class="col-md-2 input-group">
+      <span class="input-group-addon">
+        友だちのみに限定<input type="checkbox" name="private" />
+      </span>
+    </div>
+    <div class="col-md-1 input-group">
+      <input class="btn btn-default" type="submit" value="送信" />
+    </div>
+  </form>
+</div>
+: }
+
+<div class="row" id="entries">
+  : for $entries -> $entry {
+  <div class="panel panel-primary entry">
+    <div class="entry-title">タイトル: <a href="/diary/entry/<: ($entry['id']) :>"><: ($entry['title']) :></a></div>
+    <div class="entry-content">
+      : for $entry['content'].split('\n') -> $line {
+      <: ($line) :><br />
+      : } 
+    </div>
+    : if ($entry['is_private']) {
+    <div class="text-danger entry-private">範囲: 友だち限定公開</div>
+    : }
+    <div class="entry-created-at">更新日時: <: ($entry['created_at']) :></div>
+    <div class="entry-comments">コメント: <: $entry.comment_count :>件</div>
+  </div>
+  : }
+</div>
+
+: } # end content

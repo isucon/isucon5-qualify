@@ -1,0 +1,12 @@
+{{ template "header.html" }}
+<h2>あしあとリスト</h2>
+<div class="row panel panel-primary" id="footprints">
+    <ul class="list-group">
+        {{ range .Footprints }}
+        {{ $owner := getUser .OwnerID }}
+        <li class="list-group-item footprints-footprint">{{ .Updated.Format "2006-01-02 15:04:05" }}: <a href="/profile/{{ $owner.AccountName }}">{{ $owner.NickName }}さん</a></li>
+        {{ end }}
+    </ul>
+</div>
+</body>
+</html>

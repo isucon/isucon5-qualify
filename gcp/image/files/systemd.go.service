@@ -1,0 +1,10 @@
+[Unit]
+Description=isuxi-go
+After=syslog.target
+
+[Service]
+WorkingDirectory=/home/isucon/webapp/go
+ExecStart=/home/isucon/webapp/go/app
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+<%@ val footprints : Seq[isucon5.DB.Footprint] %>
+<h2>あしあとリスト</h2>
+<div class="row panel panel-primary" id="footprints">
+<ul class="list-group">
+#for(fp <- footprints)
+#{ val owner = isucon5.DB.User(fp.owner_id) }#
+<li class="list-group-item footprints-footprint"><%= fp.updatedTime %>: <a href="/profile/<%= owner.account_name %>"><%= owner.nick_name %>さん</a>
+#end
+</ul>
+</div>

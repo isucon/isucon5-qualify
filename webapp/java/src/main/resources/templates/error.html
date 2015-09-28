@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<body>
+<div layout:fragment="content">
+    <h2>エラー</h2>
+
+    <div class="text-danger" th:text="${message}"></div>
+    <div><a th:href="@{/}">戻る</a></div>
+</div>
+</body>
+</html>

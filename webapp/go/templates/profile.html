@@ -1,0 +1,77 @@
+{{ template "header.html" }}
+<h2>{{ .Owner.NickName }}さんのプロフィール</h2>
+
+<div class="row" id="prof">
+  <dl class="panel panel-primary">
+    <dt>アカウント名</dt><dd id="prof-account-name">{{ .Owner.AccountName }}</dd>
+    {{ if .Private }}
+    <dt>メールアドレス</dt><dd id="prof-email">{{ .Owner.Email }}</dd>
+    {{ end }}
+    {{ with .Profile}}
+    <dt>姓</dt><dd id="prof-last-name">{{if .LastName }}{{ .LastName }}{{else}}未入力{{end}}</dd>
+    <dt>名</dt><dd id="prof-first-name">{{ if .FirstName }}{{ .FirstName }}{{else}}未入力{{end}}</dd>
+    {{ if $.Private }}
+    <dt>性別</dt><dd id="prof-sex">{{ if .Sex }}{{ .Sex }}{{else}}未入力{{end}}</dd>
+    <dt>誕生日</dt><dd id="prof-birthday">{{ if .Birthday.Valid }}{{ .Birthday.Time.Format "1月2日" }}{{else}}未入力{{end}}</dd>
+    <dt>住んでいる県</dt><dd id="prof-pref">{{ if .Pref }}{{ .Pref }}{{else}}未入力{{end}}</dd>
+    {{ end }}
+    {{ end }}
+  </dl>
+</div>
+
+<h2>{{ .Owner.NickName }}さんの日記</h2>
+<div class="row" id="prof-entries">
+  {{ range .Entries }}
+  {{ if or (not .Private) $.Private }}
+  <div class="panel panel-primary entry">
+    <div class="entry-title">タイトル: <a href="/diary/entry/{{ .ID }}">{{ .Title }}</a></div>
+    <div class="entry-content">
+      {{ $content := substring .Content 60 }}
+      {{ range (split $content "\n") }}
+      {{ . }}<br/>
+      {{ end }}
+    </div>
+    <div class="entry-created-at">更新日時: {{ .CreatedAt }}</div>
+  </div>
+  {{ end }}
+  {{ end }}
+</div>
+
+{{ if eq getCurrentUser.ID .Owner.ID }}
+<h2>プロフィール更新</h2>
+<div id="profile-post-form">
+  <form method="POST" action="/profile/{{ getCurrentUser.AccountName }}">
+    <div>名字: <input type="text" name="last_name" placeholder="みょうじ" value="{{ .Profile.LastName }}" /></div>
+    <div>名前: <input type="text" name="first_name" placeholder="なまえ" value="{{ .Profile.FirstName }}" /></div>
+    <div>性別:
+      <select name="sex">
+        <option>未指定</option>
+        <option {{ if eq .Profile.Sex "男性" }}selected{{ end }}>男性</option>
+        <option {{ if eq .Profile.Sex "女性" }}selected{{ end }}>女性</option>
+        <option {{ if eq .Profile.Sex "その他" }}selected{{ end }}>その他</option>
+      </select>
+    </div>
+    <div>誕生日:
+      <input type="date" name="birthday" min="1915-01-01" max="2014-12-31" value="{{ if .Profile.Birthday.Valid }}{{ .Profile.Birthday.Time.Format "2006-01-02 15:04:05" }}{{ end }}">
+    </div>
+    <div>住んでいる県:
+      <select name="pref">
+        {{ range prefectures }}
+        <option {{ if eq $.Profile.Pref . }}selected{{ end }}>{{ . }}</option>
+        {{ end }}
+      </select>
+    </div>
+    <div><input type="submit" value="更新" /></div>
+  </form>
+</div>
+{{ else if not (isFriend .Owner.ID) }}
+<h2>あなたは友だちではありません</h2>
+<div id="profile-friend-form">
+  <form method="POST" action="/friends/{{ .Owner.AccountName }}">
+    <input type="submit" value="このユーザと友だちになる" />
+  </form>
+</div>
+{{ end }}
+
+</body>
+</html>

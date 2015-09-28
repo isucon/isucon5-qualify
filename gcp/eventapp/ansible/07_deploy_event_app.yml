@@ -1,0 +1,29 @@
+---
+- hosts: all
+  gather_facts: no
+  sudo: yes
+  sudo_user: isucon
+  tasks:
+    - file: path=/home/isucon/.ssh state=directory owner=isucon mode=755
+    - copy: src=../keys/root_id_rsa dest=/home/isucon/.ssh/deploy_id_rsa owner=isucon mode=600
+    - git:
+        repo=git@github.com:tagomoris/isucon5-qualify.git
+        dest=/home/isucon/isucon5-qualify
+        key_file=/home/isucon/.ssh/deploy_id_rsa
+        accept_hostkey=yes
+    - name: ruby
+      shell: PATH=/home/isucon/.local/ruby/bin:$PATH bundle install
+      args:
+        chdir: /home/isucon/isucon5-qualify/eventapp
+    # 1. DO OAuth (gcloud config set account tagomoris@gmail.com ; gcloud auth login) as tagomoris@gmail.com on Server!
+    # 2. apply sql/schema.sql to MySQL
+    # 3. load teams TSV and testsets.json by ruby team_load.rb
+
+- hosts: all
+  gather_facts: no
+  tasks:
+    - copy: src=../files/env.bench.sh dest=/home/isucon/env.bench.sh owner=isucon mode=644
+    - name: ruby (systemd)
+      copy: src=../files/systemd.ruby.service dest=/etc/systemd/system/bench.ruby.service owner=root mode=644
+    - name: default application selection
+      service: name=bench.ruby state=running enabled=true

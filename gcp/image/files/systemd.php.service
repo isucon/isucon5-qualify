@@ -1,0 +1,11 @@
+[Unit]
+Description=isuxi-php
+After=syslog.target
+
+[Service]
+WorkingDirectory=/home/isucon/webapp/php
+EnvironmentFile=/home/isucon/env.sh
+ExecStart=/home/isucon/.local/php/sbin/php-fpm -y php-fpm.conf
+
+[Install]
+WantedBy=multi-user.target

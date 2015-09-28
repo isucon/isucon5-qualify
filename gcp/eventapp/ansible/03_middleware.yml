@@ -1,0 +1,22 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - apt: name=nginx state=present
+    - service: name=nginx state=running enabled=true
+    - copy: src=../files/nginx.conf dest=/etc/nginx/nginx.conf owner=root mode=644
+      notify:
+        - reload nginx
+    - apt: name=mysql-server-5.6 state=present
+    - file: path=/var/run/mysqld state=directory owner=mysql mode=775
+    - lineinfile: dest=/etc/mysql/mysql.conf.d/mysqld.cnf regexp='^#?.*bind-address.*=.*127.0.0.1' line='bind-address = 0.0.0.0'
+      notify:
+        - restart mysqld
+    - service: name=mysql state=running enabled=true
+    - apt: name=python-mysqldb state=present
+    # - mysql_user: name=portalsan password=tony-morris login_host="%" priv=*.*:ALL state=present
+  handlers:
+    - name: restart mysqld
+      action: service name=mysql state=restarted
+    - name: reload nginx
+      action: service name=nginx state=restarted

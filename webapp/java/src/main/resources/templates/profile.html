@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<body>
+<div layout:fragment="content">
+    <h2 th:text="${owner.nickName + 'さんのプロフィール'}"></h2>
+
+    <div class="row" id="prof">
+        <dl class="panel panel-primary">
+            <dt>アカウント名</dt>
+            <dd id="prof-account-name" th:text="${owner.accountName}"></dd>
+            <dt th:if="${private}">メールアドレス</dt>
+            <dd id="prof-email" th:if="${private}" th:text="${owner.email}"></dd>
+            <dt>姓</dt>
+            <dd id="prof-last-name" th:text="${profile.lastName != null ? profile.lastName : '未入力'}">未入力</dd>
+            <dt>名</dt>
+            <dd id="prof-first-name" th:text="${profile.firstName != null ? profile.firstName : '未入力'}">未入力</dd>
+            <dt th:if="${private}">性別</dt>
+            <dd id="prof-sex" th:if="${private}" th:text="${profile.sex != null ? profile.sex : '未入力'}">未入力</dd>
+            <dt th:if="${private}">誕生日</dt>
+            <dd id="prof-birthday" th:if="${private}" th:text="${profile.birthDay != null ? profile.birthDay : '未入力'}">
+                未入力
+            </dd>
+            <dt th:if="${private}">住んでいる県</dt>
+            <dd id="prof-pref" th:if="${private}" th:text="${profile.pref != null ? profile.pref : '未入力'}">未入力</dd>
+        </dl>
+    </div>
+
+    <h2 th:text="${owner.nickName + 'さんの日記'}"></h2>
+
+    <div class="row" id="prof-entries">
+        <div class="panel panel-primary entry" th:each="entry : ${entries}" th:if="${!entry.private || private}">
+            <div class="entry-title">タイトル: <a th:href="@{'/diary/entry/' + ${entry.id}}" th:text="${entry.title}"></a>
+            </div>
+            <div class="entry-content"
+                 th:with="c=${entry.content}, content=${c.length() > 60 ? c.substring(0, 60) : c}">
+                <span th:each="line : ${content.split('\n')}" th:remove="tag">
+                    <span th:text="${line}" th:remove="tag"></span><br/>
+                </span>
+            </div>
+            <div class="entry-created-at" th:text="'更新日時: ' + ${#temporals.format(entry.createdAt, 'uuuu-MM-dd HH:mm:ss')}"></div>
+        </div>
+    </div>
+
+    <h2 th:if="${currentUser.id == owner.id}">プロフィール更新</h2>
+
+    <div th:if="${currentUser.id == owner.id}" id="profile-post-form">
+        <form method="POST"
+              th:action="@{'/profile/' + ${currentUser.accountName}}">
+            <div>名字: <input type="text" name="last_name" placeholder="みょうじ" th:value="${profile.lastName}"/></div>
+            <div>名前: <input type="text" name="first_name" placeholder="なまえ" th:value="${profile.firstName}"/></div>
+            <div>性別:
+                <select name="sex" th:value="${profile.sex}">
+                    <option>未指定</option>
+                    <option th:selected="${profile.sex == '男性'}">男性</option>
+                    <option th:selected="${profile.sex == '女性'}">女性</option>
+                    <option th:selected="${profile.sex == 'その他'}">その他</option>
+                </select>
+            </div>
+            <div>誕生日:
+                <input type="date" name="birthday" min="1915-01-01" max="2014-12-31"
+                       th:value="${profile.birthDay != null ? profile.birthDay : '2000-01-01'}"/>
+            </div>
+            <div>住んでいる県:
+                <select name="pref">
+                    <option th:each="pref : ${prefectures}" th:selected="${profile.pref == pref}"
+                            th:text="${pref}"></option>
+                </select>
+            </div>
+            <div><input type="submit" value="更新"/></div>
+        </form>
+    </div>
+    <h2 th:if="${(currentUser.id != owner.id) and !friend}">あなたは友だちではありません</h2>
+
+    <div th:if="${(currentUser.id != owner.id) and !friend}" id="profile-friend-form">
+        <form method="POST"
+              th:action="@{'/friends/' + ${owner.accountName}}">
+            <input type="submit" value="このユーザと友だちになる"/>
+        </form>
+    </div>
+</div>
+</body>
+</html>

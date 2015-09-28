@@ -1,0 +1,98 @@
+{{ template "header.html" }}
+<h2>ISUxi index</h2>
+<div class="row panel panel-primary" id="prof">
+  <div class="col-md-12 panel-title" id="prof-nickname">{{ .User.NickName }}</div>
+  <div class="col-md-12"><a href="/profile/{{ .User.AccountName }}">プロフィール</a></div>
+  <div class="col-md-4">
+    <dl>
+      <dt>アカウント名</dt><dd id="prof-account-name">{{ .User.AccountName }}</dd>
+      <dt>メールアドレス</dt><dd id="prof-email">{{ .User.Email }}</dd>
+      {{ with .Profile}}
+      <dt>姓</dt><dd id="prof-last-name">{{if .LastName }}{{ .LastName }}{{else}}未入力{{end}}</dd>
+      <dt>名</dt><dd id="prof-first-name">{{ if .FirstName }}{{ .FirstName }}{{else}}未入力{{end}}</dd>
+      <dt>性別</dt><dd id="prof-sex">{{ if .Sex }}{{ .Sex }}{{else}}未入力{{end}}</dd>
+      <dt>誕生日</dt><dd id="prof-birthday">{{ if .Birthday.Valid }}{{ .Birthday.Time.Format "1月2日" }}{{else}}未入力{{end}}</dd>
+      <dt>住んでいる県</dt><dd id="prof-pref">{{ if .Pref }}{{ .Pref }}{{else}}未入力{{end}}</dd>
+      {{end}}
+      <dt>友だちの人数</dt><dd id="prof-friends"><a href="/friends">{{ len .Friends }}人</a></dd>
+    </dl>
+  </div>
+
+  <div class="col-md-4">
+    <div id="entries-title"><a href="/diary/entries/{{ .User.AccountName }}">あなたの日記エントリ</a></div>
+    <div id="entries">
+      <ul class="list-group">
+        {{ range .Entries }}
+        <li class="list-group-item entries-entry"><a href="/diary/entry/{{ .ID }}">{{ .Title }}</a></li>
+        {{ end }}
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div><a href="/footprints">あなたのページへの足あと</a></div>
+    <div id="footprints">
+      <ul class="list-group">
+        {{ range .Footprints }}
+        {{ $owner := getUser .OwnerID }}
+        <li class="list-group-item footprints-footprint">{{ .CreatedAt.Format "2006-01-02 15:04:05" }}: <a href="/profile/{{ $owner.AccountName }}">{{ $owner.NickName }}さん</a></li>
+        {{ end }}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="row panel panel-primary">
+  <div class="col-md-4">
+    <div>あなたへのコメント</div>
+    <div id="comments">
+      {{ range .CommentsForMe }}
+      <div class="comments-comment">
+        <ul class="list-group">
+          {{ $commentUser := getUser .UserID }}
+          <li class="list-group-item comment-owner"><a href="/profile/{{ $commentUser.AccountName}}">{{ $commentUser.NickName }}さん</a>:</li>
+          <li class="list-group-item comment-comment">{{ if ge (len .Comment) 30 }}{{ substring .Comment 27 }}...{{ else }}{{ .Comment }}{{ end }}</li>
+          <li class="list-group-item comment-created-at">投稿時刻:{{ .CreatedAt.Format "2006-01-02 15:04:05" }}</li>
+        </ul>
+      </div>
+      {{ end }}
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div>あなたの友だちの日記エントリ</div>
+    <div id="friend-entries">
+      {{ range .EntriesOfFriends }}
+      <div class="friend-entry">
+        <ul class="list-group">
+          {{ $entryOwner := getUser .UserID }}
+          <li class="list-group-item entry-owner"><a href="/diary/entries/{{ $entryOwner.AccountName }}">{{ $entryOwner.NickName }}さん</a>:</li>
+          <li class="list-group-item entry-title"><a href="/diary/entry/{{ .ID }}">{{ .Title }}</a></li>
+          <li class="list-group-item entry-created-at">投稿時刻:{{ .CreatedAt.Format "2006-01-02 15:04:05" }}</li>
+        </ul>
+      </div>
+      {{ end }}
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div>あなたの友だちのコメント</div>
+    <div id="friend-comments">
+      {{ range .CommentsOfFriends }}
+      <div class="friend-comment">
+        <ul class="list-group">
+          {{ $commentOwner := getUser .UserID }}
+          {{ $entry := getEntry .EntryID }}
+          {{ $entryOwner := getUser $entry.UserID }}
+          <li class="list-group-item comment-from-to"><a href="/profile/{{ $commentOwner.AccountName }}">{{ $commentOwner.NickName }}さん</a>から<a href="/profile/{{ $entryOwner.AccountName }}">{{ $entryOwner.NickName }}さん</a>へのコメント:</li>
+          <li class="list-group-item comment-comment">{{ if ge (len .Comment) 30 }}{{ substring .Comment 27 }}...{{ else }}{{ .Comment }}{{ end }}</li>
+          <li class="list-group-item comment-created-at">投稿時刻:{{ .CreatedAt.Format "2006-01-02 15:04:05" }}</li>
+        </ul>
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

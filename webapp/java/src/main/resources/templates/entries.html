@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<body>
+<div layout:fragment="content">
+    <h2 th:text="${owner.nickName + 'さんの日記'}"></h2>
+
+    <div th:if="${myself}" class="row" id="entry-post-form">
+        <form method="POST" th:action="@{/diary/entry}">
+            <div class="col-md-4 input-group">
+                <span class="input-group-addon">タイトル</span>
+                <input type="text" name="title"/>
+            </div>
+            <div class="col-md-4 input-group">
+                <span class="input-group-addon">本文</span>
+                <textarea name="content"></textarea>
+            </div>
+            <div class="col-md-2 input-group">
+                <span class="input-group-addon">
+                    友だちのみに限定<input type="checkbox" name="private"/>
+                </span>
+            </div>
+            <div class="col-md-1 input-group">
+                <input class="btn btn-default" type="submit" value="送信"/>
+            </div>
+        </form>
+    </div>
+
+    <div class="row" id="entries" th:each="entry : ${entries}">
+        <div class="panel panel-primary entry">
+            <div class="entry-title">タイトル: <a th:href="@{'/diary/entry/' + ${entry.id}}" th:text="${entry.title}"></a>
+            </div>
+            <div class="entry-content">
+        <span th:each="line : ${entry.content.split('\n')}" th:remove="tag">
+            <span th:text="${line}" th:remove="tag"></span><br/>
+        </span>
+            </div>
+            <div th:if="${entry.private}" class="text-danger entry-private">範囲: 友だち限定公開</div>
+            <div class="entry-created-at" th:text="${'更新日時: ' + #temporals.format(entry.createdAt, 'uuuu-MM-dd HH:mm:ss')}"></div>
+            <div class="entry-comments" th:text="${'コメント: ' + @commentRepository.countByEntryId(entry.id) + '件'}"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

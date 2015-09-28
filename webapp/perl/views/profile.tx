@@ -1,0 +1,74 @@
+: cascade base
+: around content -> {
+
+<h2><: ($owner['nick_name']) :>さんのプロフィール</h2>
+<div class="row" id="prof">
+  <dl class="panel panel-primary">
+    <dt>アカウント名</dt><dd id="prof-account-name"><: ($owner['account_name']) :></dd>
+    : if ($private) {
+    <dt>メールアドレス</dt><dd id="prof-email"><: ($owner['email']) :></dd>
+    : }
+    <dt>姓</dt><dd id="prof-last-name"><: ($profile['last_name'] || '未入力') :></dd>
+    <dt>名</dt><dd id="prof-first-name"><: ($profile['first_name'] || '未入力') :></dd>
+    : if ($private) {
+    <dt>性別</dt><dd id="prof-sex"><: ($profile['sex'] || '未入力') :></dd>
+    <dt>誕生日</dt><dd id="prof-birthday"><: ($profile['birthday'] || '未入力') :></dd>
+    <dt>住んでいる県</dt><dd id="prof-pref"><: ($profile['pref'] || '未入力') :></dd>
+    : }
+  </dl>
+</div>
+
+<h2><: ($owner['nick_name']) :>さんの日記</h2>
+<div class="row" id="prof-entries">
+  : for $entries -> $entry {
+  : if (!$entry['is_private'] || $private) {
+  <div class="panel panel-primary entry">
+    <div class="entry-title">タイトル: <a href="/diary/entry/<: ($entry['id']) :>"><: ($entry['title']) :></a></div>
+    <div class="entry-content">
+      : for $entry['content'].substr(0, 60).split('\n') -> $line {
+      <: ($line) :><br />
+      : }
+    </div>
+    <div class="entry-created-at">更新日時: <: ($entry['created_at']) :></div>
+  </div>
+  : }
+  : }
+</div>
+
+: if ($current_user['id'] == $owner['id']) {
+<h2>プロフィール更新</h2>
+<div id="profile-post-form">
+  <form method="POST" action="/profile/<: ($current_user['account_name']) :>">
+    <div>名字: <input type="text" name="last_name" placeholder="みょうじ" value="<: ($profile['last_name']) :>" /></div>
+    <div>名前: <input type="text" name="first_name" placeholder="なまえ" value="<: ($profile['first_name']) :>" /></div>
+    <div>性別:
+      <select name="sex">
+        <option>未指定</option>
+        <option <: ($profile['sex'] == "男性" ? 'selected' : '') :>>男性</option>
+        <option <: ($profile['sex'] == "女性" ? 'selected' : '') :>>女性</option>
+        <option <: ($profile['sex'] == "その他" ? 'selected' : '') :>>その他</option>
+      </select>
+    </div>
+    <div>誕生日:
+      <input type="date" name="birthday" min="1915-01-01" max="2014-12-31" value="<: ($profile['birthday'] ? $profile['birthday'] : "2000-01-01") :>" />
+    </div>
+    <div>住んでいる県:
+      <select name="pref">
+        : for $prefectures -> $pref {
+        <option <: ($profile['pref'] == $pref ? 'selected' : '') :>><: ($pref) :></option>
+        : }
+      </select>
+    </div>
+    <div><input type="submit" value="更新" /></div>
+  </form>
+</div>
+: } elsif (!$is_friend) {
+<h2>あなたは友だちではありません</h2>
+<div id="profile-friend-form">
+  <form method="POST" action="/friends/<: ($owner['account_name']) :>">
+    <input type="submit" value="このユーザと友だちになる" />
+  </form>
+</div>
+<: } :>
+
+: } # end content

@@ -1,0 +1,8 @@
+source 'https://rubygems.org'
+
+gem "sinatra"
+gem "sinatra-contrib"
+gem "mysql2-cs-bind"
+gem "erubis"
+gem "unicorn"
+gem "foreman"

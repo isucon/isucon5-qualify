@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<body>
+<div layout:fragment="content">
+    <h2>友だちリスト</h2>
+
+    <div class="row panel panel-primary" id="friends">
+        <dl>
+            <!--/*/ <th:block th:each="f : ${friends}" th:with="friend=${@userRepository.findOne(f.key)}"> /*/-->
+            <dt class="friend-date" th:text="${f.value}"></dt>
+            <dd class="friend-friend"><a th:href="@{'/profile/' + ${friend.accountName}}" th:text="${friend.nickName}"></a></dd>
+            <!--/*/ </th:block> /*/-->
+        </dl>
+    </div>
+</div>
+</body>
+</html>

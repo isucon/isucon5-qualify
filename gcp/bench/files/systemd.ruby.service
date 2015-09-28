@@ -1,0 +1,14 @@
+[Unit]
+Description=bench-ruby
+After=syslog.target
+
+[Service]
+WorkingDirectory=/home/isucon/isucon5-qualify/bench
+EnvironmentFile=/home/isucon/env.bench.sh
+User=isucon
+
+ExecStart=/home/isucon/.local/ruby/bin/bundle exec ruby ./agent.rb
+ExecStop=/usr/bin/kill -QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+*.class
+*~
+#*#
+.#*
+.*.swp
+target
+*.iml
+.idea
+.bundle
+vendor

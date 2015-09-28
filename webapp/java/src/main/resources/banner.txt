@@ -1,0 +1,6 @@
+${AnsiColor.BRIGHT_RED} ___ ____  _   _ ${AnsiColor.DEFAULT} ____ ___  _   _
+${AnsiColor.BRIGHT_RED}|_ _/ ___|| | | |${AnsiColor.DEFAULT}/ ___/ _ \| \ | |
+${AnsiColor.BRIGHT_RED} | |\___ \| | | |${AnsiColor.DEFAULT} |  | | | |  \| |
+${AnsiColor.BRIGHT_RED} | | ___) | |_| |${AnsiColor.DEFAULT} |__| |_| | |\  |
+${AnsiColor.BRIGHT_RED}|___|____/ \___/ ${AnsiColor.DEFAULT}\____\___/|_| \_|
+${AnsiColor.BRIGHT_RED} :: Spring Boot :: ${AnsiColor.DEFAULT}            ${spring-boot.formatted-version}

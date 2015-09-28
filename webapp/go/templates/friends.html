@@ -1,0 +1,12 @@
+{{ template "header.html" }}
+<h2>友だちリスト</h2>
+<div class="row panel panel-primary" id="friends">
+    <dl>
+        {{ range .Friends }}
+        {{ $friend := getUser .ID }}
+        <dt class="friend-date">{{ .CreatedAt.Format "2006-01-02 15:04:05" }}</dt><dd class="friend-friend"><a href="/profile/{{ $friend.AccountName }}">{{ $friend.NickName }}</a></dd>
+        {{ end }}
+    </dl>
+</div>
+</body>
+</html>

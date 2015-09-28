@@ -1,0 +1,10 @@
+[Unit]
+Description=isuxi-java
+After=syslog.target
+
+[Service]
+Environment="_JAVA_OPTIONS=-Djava.security.egd=file:/dev/urandom" 
+ExecStart=/home/isucon/webapp/java/target/isuxi-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+
+[Install]
+WantedBy=multi-user.target

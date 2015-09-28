@@ -1,0 +1,38 @@
+{{ template "header.html" }}
+<h2>{{ .Owner.NickName }}さんの日記</h2>
+<div class="row panel panel-primary" id="entry-entry">
+    {{ with .Entry }}
+    <div class="entry-title">タイトル: <a href="/diary/entry/{{ .ID }}">{{ .Title }}</a></div>
+    <div class="entry-content">
+        {{ range (split .Content "\n") }}
+        {{ . }}<br />
+        {{ end }}
+    </div>
+    {{ if .Private }}<div class="entry-private">範囲: 友だち限定公開</div>{{ end }}
+    <div class="entry-created-at">更新日時: {{ .CreatedAt.Format "2006-01-02 15:04:05" }}</div>
+    {{ end }}
+</div>
+<h3>この日記へのコメント</h3>
+<div class="row panel panel-primary" id="entry-comments">
+    {{ range .Comments }}
+    <div class="comment">
+        {{ $commentUser := getUser .UserID }}
+        <div class="comment-owner"><a href="/profile/{{ $commentUser.AccountName }}">{{ $commentUser.NickName }}さん</a></div>
+        <div class="comment-comment">
+            {{ range (split .Comment "\n") }}
+            {{ . }}<br />
+            {{ end }}
+        </div>
+        <div class="comment-created-at">投稿時刻:{{ .CreatedAt.Format "2006-01-02 15:04:05" }}</div>
+    </div>
+    {{ end }}
+</div>
+<h3>コメントを投稿</h3>
+<div id="entry-comment-form">
+    <form method="POST" action="/diary/comment/{{ .Entry.ID }}">
+        <div>コメント: <textarea name="comment" ></textarea></div>
+        <div><input type="submit" value="送信" /></div>
+    </form>
+</div>
+</body>
+</html>

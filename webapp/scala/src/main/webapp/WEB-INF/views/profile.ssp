@@ -1,0 +1,75 @@
+<%@ val current_user : isucon5.DB.User %>
+<%@ val owner : isucon5.DB.User %>
+<%@ val profile : isucon5.DB.Profile %>
+<%@ val isPrivate : Boolean %>
+<%@ val entries : Seq[isucon5.DB.Entry] %>
+<%@ val prefectures : Seq[String] %>
+<h2><%= owner.nick_name %>さんのプロフィール</h2>
+<div class="row" id="prof">
+<dl class="panel panel-primary">
+    <dt>アカウント名</dt><dd id="prof-account-name"><%= owner.account_name %></dd>
+    #if(isPrivate)
+        <dt>メールアドレス</dt><dd id="prof-email"><%= owner.email %></dd>
+    #end
+    <dt>姓</dt><dd id="prof-last-name"><%= profile.last_name.getOrElse("未入力") %></dd>
+    <dt>名</dt><dd id="prof-first-name"><%= profile.first_name.getOrElse("未入力") %></dd>
+    #if(isPrivate)
+        <dt>性別</dt><dd id="prof-sex"><%= profile.sex.getOrElse("未入力") %></dd>
+        <dt>誕生日</dt><dd id="prof-birthday"><%= profile.birthday.getOrElse("未入力") %></dd>
+        <dt>住んでいる県</dt><dd id="prof-pref"><%= profile.pref.getOrElse("未入力") %></dd>
+    #end
+</dl>
+</div>
+
+<h2><%= owner.nick_name %>さんの日記</h2>
+<div class="row" id="prof-entries">
+#for(entry <- entries)
+    #if(!entry.isPrivate || isPrivate)
+        <div class="panel panel-primary entry">
+        <div class="entry-title">タイトル: <a href="/diary/entry/<%= entry.id %>"><%= entry.title %></a></div>
+        <div class="entry-content">
+            #for(line <- entry.summaryLines)
+                <%= line %><br />
+            #end
+        </div>
+        <div class="entry-created-at">更新日時: <%= entry.createdTime %></div>
+        </div>
+    #end
+#end
+</div>
+
+#if(current_user.id == owner.id)
+<h2>プロフィール更新</h2>
+<div id="profile-post-form">
+  <form method="POST" action="/profile/<%= current_user.account_name %>">
+    <div>名字: <input type="text" name="last_name" placeholder="みょうじ" value="<%= profile.last_name.getOrElse("") %>" /></div>
+    <div>名前: <input type="text" name="first_name" placeholder="なまえ" value="<%= profile.first_name.getOrElse("") %>" /></div>
+    <div>性別:
+      <select name="sex">
+        <option>未指定</option>
+        <option ${if(profile.isMale) "selected" else ""}>男性</option>
+        <option ${if(profile.isFemale) "selected" else ""}>女性</option>
+        <option ${if(!profile.isMale && !profile.isFemale) "selected" else ""}>その他</option>
+      </select>
+    </div>
+    <div>誕生日:
+      <input type="date" name="birthday" min="1915-01-01" max="2014-12-31" value="${profile.birthday.map(_.toString).getOrElse("2000-01-01")}" />
+    </div>
+    <div>住んでいる県:
+      <select name="pref">
+      #for(pref <- prefectures)
+      <option ${profile.pref.filter(_ == pref).map(p => "selected").getOrElse(" ")}>${pref}</option>
+      #end
+      </select>
+    </div>
+    <div><input type="submit" value="更新" /></div>
+  </form>
+</div>
+#elseif(!isucon5.DB.Friend.isFriend(current_user.id, owner.id))
+<h2>あなたは友だちではありません</h2>
+<div id="profile-friend-form">
+  <form method="POST" action="/friends/<%= owner.account_name %>">
+    <input type="submit" value="このユーザと友だちになる" />
+  </form>
+</div>
+#end

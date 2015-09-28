@@ -1,0 +1,12 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    mysql2 (0.4.1)
+    mysql2-cs-bind (0.0.6)
+      mysql2
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  mysql2-cs-bind

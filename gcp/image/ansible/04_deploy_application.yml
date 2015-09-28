@@ -1,0 +1,94 @@
+---
+- hosts: all
+  gather_facts: no
+  sudo: yes
+  sudo_user: isucon
+  tasks:
+    - file: path=/home/isucon/.ssh state=directory owner=isucon mode=755
+    - copy: src=../keys/root_id_rsa dest=/home/isucon/.ssh/deploy_id_rsa owner=isucon mode=600
+    - git:
+        repo=git@github.com:tagomoris/isucon5-qualify.git
+        dest=/tmp/isucon5-qualify
+        key_file=/home/isucon/.ssh/deploy_id_rsa
+        accept_hostkey=yes
+    - command: rsync -avz --delete /tmp/isucon5-qualify/webapp /home/isucon/
+    # /home/isucon/webapp/{etc,go,java,nodejs,perl,php,python,ruby,scala,sql,static}
+    - command: rm -rf /tmp/isucon5-qualify
+      args:
+        removes: /tmp/isucon5-qualify
+    - name: ruby
+      shell: PATH=/home/isucon/.local/ruby/bin:$PATH bundle install
+      args:
+        chdir: /home/isucon/webapp/ruby
+    - name: perl
+      shell: PATH=/home/isucon/.local/perl/bin:$PATH carton install
+      args:
+        chdir: /home/isucon/webapp/perl
+    - name: php
+      shell: PATH=/home/isucon/.local/php/bin:$PATH php composer.phar install
+      args:
+        chdir: /home/isucon/webapp/php
+    - name: java
+      shell: ./mvnw package
+      args:
+        chdir: /home/isucon/webapp/java
+
+    # python
+    - command: /home/isucon/.local/python3/bin/pip install bottle
+    - command: /home/isucon/.local/python3/bin/pip install pymysql
+    - command: /home/isucon/.local/python3/bin/pip install gunicorn
+
+    - name: go get mysql
+      shell: PATH=/home/isucon/.local/go/bin:$PATH GOROOT=/home/isucon/.local/go GOPATH=/home/isucon/webapp/go go get github.com/go-sql-driver/mysql
+      args:
+        chdir: /home/isucon/webapp/go
+    - name: go get context
+      shell: PATH=/home/isucon/.local/go/bin:$PATH GOROOT=/home/isucon/.local/go GOPATH=/home/isucon/webapp/go go get github.com/gorilla/context
+      args:
+        chdir: /home/isucon/webapp/go
+    - name: go get mux
+      shell: PATH=/home/isucon/.local/go/bin:$PATH GOROOT=/home/isucon/.local/go GOPATH=/home/isucon/webapp/go go get github.com/gorilla/mux
+      args:
+        chdir: /home/isucon/webapp/go
+    - name: go get sessions
+      shell: PATH=/home/isucon/.local/go/bin:$PATH GOROOT=/home/isucon/.local/go GOPATH=/home/isucon/webapp/go go get github.com/gorilla/sessions
+      args:
+        chdir: /home/isucon/webapp/go
+    - name: go build
+      shell: PATH=/home/isucon/.local/go/bin:$PATH GOROOT=/home/isucon/.local/go GOPATH=/home/isucon/webapp/go go build -o app
+      args:
+        chdir: /home/isucon/webapp/go
+
+    # TODO: - carton install (perl)
+    # TODO: - npm install
+    # TODO: - composer?
+    - name: scala
+      shell: ./sbt launcher
+      args:
+        chdir: /home/isucon/webapp/scala
+
+  # post_tasks:
+    # - command: sudo su - isucon /home/isucon/init.sh
+
+- hosts: all
+  gather_facts: no
+  tasks:
+    - copy: src=../files/env.sh dest=/home/isucon/env.sh owner=isucon mode=644
+    - name: ruby (systemd)
+      copy: src=../files/systemd.ruby.service dest=/etc/systemd/system/isuxi.ruby.service owner=root mode=644
+    - name: perl (systemd)
+      copy: src=../files/systemd.perl.service dest=/etc/systemd/system/isuxi.perl.service owner=root mode=644
+    - name: php (systemd)
+      copy: src=../files/systemd.php.service dest=/etc/systemd/system/isuxi.php.service owner=root mode=644
+    - name: java (systemd)
+      copy: src=../files/systemd.java.service dest=/etc/systemd/system/isuxi.java.service owner=root mode=644
+    - name: python (systemd)
+      copy: src=../files/systemd.python.service dest=/etc/systemd/system/isuxi.python.service owner=root mode=644
+    - name: go (systemd)
+      copy: src=../files/systemd.go.service dest=/etc/systemd/system/isuxi.go.service owner=root mode=644
+    - name: scala (systemd)
+      copy: src=../files/systemd.scala.service dest=/etc/systemd/system/isuxi.scala.service owner=root mode=644
+    # TODO: - nodejs (systemd)
+
+    - name: default application selection
+      service: name=isuxi.ruby state=running enabled=true

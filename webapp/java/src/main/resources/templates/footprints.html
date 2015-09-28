@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<body>
+<div layout:fragment="content">
+    <h2>あしあとリスト</h2>
+
+    <div class="row panel panel-primary" id="footprints">
+        <ul class="list-group">
+            <li class="list-group-item footprints-footprint" th:each="fp : ${footprints}"
+                th:with="owner=${@userRepository.findOne(fp.ownerId)}"><span
+                    th:text="${fp.updated}"></span>: <a th:href="@{'/profile/' + ${owner.accountName}}"
+                                                        th:text="${owner.nickName + 'さん'}"></a>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - shell: rm -rf /tmp/*; true
+    ### Should be done in image/
+    # - lineinfile: dest=/root/.ssh/authorized_keys regexp=root@base-image state=absent
+    # - remove: root .ansible, .bash_history ...
+    # - file: path=/root/.ansible state=absent
+    # - file: path=/root/.bash_history state=absent
+    # - file: path=/root/.viminfo state=absent
+    # - file: path=/home/isucon/.bash_history state=absent
+    # - file: path=/home/isucon/.viminfo state=absent
+    - file: path=/home/{{ lookup('env', 'USER') }} state=absent

@@ -1,0 +1,10 @@
+[Unit]
+Description=isuxi-scala
+After=syslog.target
+
+[Service]
+WorkingDirectory=/home/isucon/webapp/scala
+ExecStart=/home/isucon/webapp/scala/target/launcher
+
+[Install]
+WantedBy=multi-user.target
