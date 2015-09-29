@@ -35,7 +35,8 @@ ISUCON5 予選用イメージ(2日目版)
 
 ## ベンチマークツール
 
-Java8およびgradleが必要。 `bench/` 以下において `gradle compileJava` でビルド、`gradle run -Pargs="SCENARIO_CLASS TARGET_IP_ADDRESS"` でベンチマーク実行。
+Java8およびgradleが必要。 `bench/` 以下において `gradle compileJava` でビルド、`gradle run -Pargs="SCENARIO_CLASS TARGET_IP_ADDRESS"` でベンチマーク実行。なおこのツールは標準入力からJSON形式で必要なテストセットデータを読み込みます。
+`webapp/script/testsets/testsets.json` が30回分のテストデータを配列形式でまとめたデータのJSON表現となっていますので `parse(jsonText)[0].to_json` 的な変換をすれば1回のベンチマークに必要な入力データが得られます。
 
 結果がJSONで出力されるが、これは直接のスコアを含まない。スコアの計算式は `eventapp/lib/score.rb` に存在するが、単純なのでベンチマークツールの出力を見てもほぼ推定できるはず。
 
