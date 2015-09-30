@@ -62,7 +62,7 @@ def run_benchmark(entry_id, ip_address, testset_json)
   result_json = ""
 
   source_path = "/tmp/testset.#{entry_id}.json"
-  File.open(data_source, "w") do |f|
+  File.open(source_path, "w") do |f|
     f.write testset_json
   end
   result_path = "/tmp/result.#{entry_id}.json"
