@@ -52,7 +52,7 @@ def revert_queue_entry(client, entry_id, result_json)
   client.xquery("UPDATE queue SET status=?, bench_node=NULL, acked_at='0000-00-00 00:00:00' WHERE id=? ", "waiting", entry_id)
 end
 
-def release_complete_entry(client, entry_id)
+def release_complete_entry(client, entry_id, result_json)
   client.xquery("UPDATE queue SET status=?, submitted_at=CURRENT_TIMESTAMP(), json=? WHERE id=? ", "submitted", result_json, entry_id)
 end
 
@@ -62,7 +62,7 @@ def run_benchmark(entry_id, ip_address, testset_json)
   result_json = ""
 
   source_path = "/tmp/testset.#{entry_id}.json"
-  File.open(data_source, "w") do |f|
+  File.open(source_path, "w") do |f|
     f.write testset_json
   end
   result_path = "/tmp/result.#{entry_id}.json"
