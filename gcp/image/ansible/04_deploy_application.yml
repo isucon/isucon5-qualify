@@ -4,13 +4,9 @@
   sudo: yes
   sudo_user: isucon
   tasks:
-    - file: path=/home/isucon/.ssh state=directory owner=isucon mode=755
-    - copy: src=../keys/root_id_rsa dest=/home/isucon/.ssh/deploy_id_rsa owner=isucon mode=600
     - git:
-        repo=git@github.com:tagomoris/isucon5-qualify.git
+        repo=https://github.com/isucon/isucon5-qualify.git
         dest=/tmp/isucon5-qualify
-        key_file=/home/isucon/.ssh/deploy_id_rsa
-        accept_hostkey=yes
     - command: rsync -avz --delete /tmp/isucon5-qualify/webapp /home/isucon/
     # /home/isucon/webapp/{etc,go,java,nodejs,perl,php,python,ruby,scala,sql,static}
     - command: rm -rf /tmp/isucon5-qualify
