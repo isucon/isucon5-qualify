@@ -52,7 +52,7 @@ def revert_queue_entry(client, entry_id, result_json)
   client.xquery("UPDATE queue SET status=?, bench_node=NULL, acked_at='0000-00-00 00:00:00' WHERE id=? ", "waiting", entry_id)
 end
 
-def release_complete_entry(client, entry_id)
+def release_complete_entry(client, entry_id, result_json)
   client.xquery("UPDATE queue SET status=?, submitted_at=CURRENT_TIMESTAMP(), json=? WHERE id=? ", "submitted", result_json, entry_id)
 end
 
