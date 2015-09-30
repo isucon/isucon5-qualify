@@ -33,6 +33,8 @@
     - apt: name=libxslt1-dev state=present
     - apt: name=readline-common state=present
     - apt: name=re2c state=present
+    # for node-install
+    - apt: name=curl state=present
     # for php --with-openssl
     - apt: name=pkg-config
     # make Ubuntu 15.04 image root fs to rw 
