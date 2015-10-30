@@ -13,7 +13,7 @@ module Isucon5Portal::GCloud
   end
 
   def self.server_info(project_id, zone_name, instance_name)
-    jsonText = IO.popen([*%w(gcloud compute --project), project_id, %w(instances list --zones), zone_name, %w(--format json)]) do |io|
+    jsonText = IO.popen([*%w(gcloud compute --project), project_id, *%w(instances list --zones), zone_name, *%w(--format json)]) do |io|
       io.read()
     end
     serverInfoList = JSON.parse(jsonText) rescue nil
