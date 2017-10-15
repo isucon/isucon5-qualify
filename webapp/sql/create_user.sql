@@ -1,4 +1,4 @@
-SET @account_name='tagomoris', @nick_name='モリス', @email='moris@tagomor.is', @password='hogepos';
+SET @account_name='edwardo', @nick_name='エドワード', @email='edwardo3657@isucon.net', @password='edwardo3657';
 
 begin;
 INSERT INTO users (account_name,nick_name,email,passhash) VALUES (@account_name,@nick_name,@email,'');

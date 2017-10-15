@@ -1,0 +1,8 @@
+FROM golang:1.9
+
+ADD ./webapp /go/src/g0tiu5a/webapp
+WORKDIR /go/src/g0tiu5a/webapp/go
+RUN go get
+
+EXPOSE 8080
+CMD [ "go", "run", "app.go" ]
