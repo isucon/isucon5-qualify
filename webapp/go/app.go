@@ -10,9 +10,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"path"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -150,6 +152,11 @@ func getUserFromAccount(w http.ResponseWriter, name string) *User {
 	}
 	checkErr(err)
 	return &user
+}
+
+func checkFriendFromSlice(friends []int, id int) bool {
+	index := sort.SearchInts(friends, id)
+	return index < len(friends) && friends[index] == id
 }
 
 func isFriend(w http.ResponseWriter, r *http.Request, anotherID int) bool {
@@ -335,55 +342,6 @@ LIMIT 10`, user.ID)
 	}
 	rows.Close()
 
-	rows, err = db.Query(`SELECT * FROM entries ORDER BY created_at DESC LIMIT 1000`)
-	if err != sql.ErrNoRows {
-		checkErr(err)
-	}
-	entriesOfFriends := make([]Entry, 0, 10)
-	for rows.Next() {
-		var id, userID, private int
-		var body string
-		var createdAt time.Time
-		checkErr(rows.Scan(&id, &userID, &private, &body, &createdAt))
-		if !isFriend(w, r, userID) {
-			continue
-		}
-		entriesOfFriends = append(entriesOfFriends, Entry{id, userID, private == 1, strings.SplitN(body, "\n", 2)[0], strings.SplitN(body, "\n", 2)[1], createdAt})
-		if len(entriesOfFriends) >= 10 {
-			break
-		}
-	}
-	rows.Close()
-
-	rows, err = db.Query(`SELECT * FROM comments ORDER BY created_at DESC LIMIT 1000`)
-	if err != sql.ErrNoRows {
-		checkErr(err)
-	}
-	commentsOfFriends := make([]Comment, 0, 10)
-	for rows.Next() {
-		c := Comment{}
-		checkErr(rows.Scan(&c.ID, &c.EntryID, &c.UserID, &c.Comment, &c.CreatedAt))
-		if !isFriend(w, r, c.UserID) {
-			continue
-		}
-		row := db.QueryRow(`SELECT * FROM entries WHERE id = ?`, c.EntryID)
-		var id, userID, private int
-		var body string
-		var createdAt time.Time
-		checkErr(row.Scan(&id, &userID, &private, &body, &createdAt))
-		entry := Entry{id, userID, private == 1, strings.SplitN(body, "\n", 2)[0], strings.SplitN(body, "\n", 2)[1], createdAt}
-		if entry.Private {
-			if !permitted(w, r, entry.UserID) {
-				continue
-			}
-		}
-		commentsOfFriends = append(commentsOfFriends, c)
-		if len(commentsOfFriends) >= 10 {
-			break
-		}
-	}
-	rows.Close()
-
 	rows, err = db.Query(`SELECT * FROM relations WHERE one = ? OR another = ? ORDER BY created_at DESC`, user.ID, user.ID)
 	if err != sql.ErrNoRows {
 		checkErr(err)
@@ -404,8 +362,61 @@ LIMIT 10`, user.ID)
 		}
 	}
 	friends := make([]Friend, 0, len(friendsMap))
+	friendIds := make([]int, 0, len(friendsMap))
 	for key, val := range friendsMap {
 		friends = append(friends, Friend{key, val})
+		friendIds = append(friendIds, key)
+	}
+	rows.Close()
+
+	sort.Ints(friendIds)
+
+	rows, err = db.Query(`SELECT * FROM entries ORDER BY created_at DESC LIMIT 1000`)
+	if err != sql.ErrNoRows {
+		checkErr(err)
+	}
+	entriesOfFriends := make([]Entry, 0, 10)
+	for rows.Next() {
+		var id, userID, private int
+		var body string
+		var createdAt time.Time
+		checkErr(rows.Scan(&id, &userID, &private, &body, &createdAt))
+		if !checkFriendFromSlice(friendIds, userID) {
+			continue
+		}
+		entriesOfFriends = append(entriesOfFriends, Entry{id, userID, private == 1, strings.SplitN(body, "\n", 2)[0], strings.SplitN(body, "\n", 2)[1], createdAt})
+		if len(entriesOfFriends) >= 10 {
+			break
+		}
+	}
+	rows.Close()
+
+	rows, err = db.Query(`SELECT * FROM comments ORDER BY created_at DESC LIMIT 1000`)
+	if err != sql.ErrNoRows {
+		checkErr(err)
+	}
+	commentsOfFriends := make([]Comment, 0, 10)
+	for rows.Next() {
+		c := Comment{}
+		checkErr(rows.Scan(&c.ID, &c.EntryID, &c.UserID, &c.Comment, &c.CreatedAt))
+		if !checkFriendFromSlice(friendIds, c.UserID) {
+			continue
+		}
+		row := db.QueryRow(`SELECT * FROM entries WHERE id = ?`, c.EntryID)
+		var id, userID, private int
+		var body string
+		var createdAt time.Time
+		checkErr(row.Scan(&id, &userID, &private, &body, &createdAt))
+		entry := Entry{id, userID, private == 1, strings.SplitN(body, "\n", 2)[0], strings.SplitN(body, "\n", 2)[1], createdAt}
+		if entry.Private {
+			if !permitted(w, r, entry.UserID) {
+				continue
+			}
+		}
+		commentsOfFriends = append(commentsOfFriends, c)
+		if len(commentsOfFriends) >= 10 {
+			break
+		}
 	}
 	rows.Close()
 
@@ -746,7 +757,8 @@ func main() {
 		ssecret = "beermoris"
 	}
 
-	db, err = sql.Open("mysql", user+":"+password+"@tcp("+host+":"+strconv.Itoa(port)+")/"+dbname+"?loc=Local&parseTime=true")
+	// db, err = sql.Open("mysql", user+":"+password+"@tcp("+host+":"+strconv.Itoa(port)+")/"+dbname+"?loc=Local&parseTime=true")
+	db, err = sql.Open("mysql", user+":"+password+"@unix(/var/run/mysqld/mysqld.sock)/"+dbname+"?loc=Local&parseTime=true")
 	if err != nil {
 		log.Fatalf("Failed to connect to DB: %s.", err.Error())
 	}
@@ -780,6 +792,11 @@ func main() {
 	r.HandleFunc("/initialize", myHandler(GetInitialize))
 	r.HandleFunc("/", myHandler(GetIndex))
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("../static")))
+
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
