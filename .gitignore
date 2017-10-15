@@ -8,3 +8,4 @@ target
 .idea
 .bundle
 vendor
+data/
